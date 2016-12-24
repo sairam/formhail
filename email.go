@@ -37,7 +37,7 @@ const connectionHost = "localhost:25"
 
 func (*plainSMTP) Send() {
 
-	body = "This is the email body"
+	body := "This is the email body"
 	// Connect to the remote SMTP server.
 	c, err := smtp.Dial(connectionHost)
 	if err != nil {
