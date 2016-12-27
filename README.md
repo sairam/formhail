@@ -45,3 +45,7 @@
 1. Support for PushOver/Push Notifications?
 1. Support Attachments to link via s3
 1. If attachment size > 10MB, put in s3 and provide a signed link
+
+
+## Development
+* Set environment variables `set -a ; . .env ; set +a`

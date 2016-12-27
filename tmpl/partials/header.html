@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+
+    <link type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="//fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+    <link type="image/x-icon" rel="icon" href="/favicon.ico">
+
+    <style type="text/css">
+
+    body {
+      font-family: Roboto, Helvetica, Arial, sans-serif;
+      margin: 0px auto;
+    }
+
+    .logo {
+      font-variant: small-caps;
+      letter-spacing: 1px;
+      text-decoration: underline;
+    }
+
+    </style>
+    <title>{{.Title}} | FormToSlack</title>
+    <meta property="og:title" content="FormToSlack - {{.Title}}"/>
+    <meta name="description"  content="FormToSlack gets you form submissions as slack messages or emails">
+    <meta property="og:description" content="Get Form Submissions from your website as Slack Notifications or Emails for Free"/>
+
+    <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+  </head>
+  <body>
+    <div class="row text-center">
+      <div class="col-xs-12 col-sm-12 col-md-offset-3 col-md-6 col-lg-offset-3 col-lg-6">
+        <div class="row">
+          <div class="col-md-2">
+            <h3 class="logo"><a href="/">FormToSlack</a></h3>
+          </div>
+          <div class="col-md-8"><h2 class="text-center">{{.Title}}</h2></div>
+          <div class="col-md-2">
+            {{ if eq .User "" }}
+            <br>
+            <a href="/faq">Frequently Asked Questions</a>
+            {{ else }}
+            <br>
+            <a href="/faq">FAQ</a> | <a class="btn btn-danger" href="/logout">Logout</a>
+            @{{.User}}</strong> &nbsp;&nbsp;</span>
+            {{ end }}
+          </div>
+        </div>
+
+        {{ range $x := .Flashes }}
+        <div class="alert alert-info" role="alert">{{ $x | safeHTML }}</div>
+        {{ end }}

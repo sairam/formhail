@@ -10,13 +10,13 @@ import (
 
 // also see https://gist.github.com/chrisgillis/10888032
 
-func main() {
+// func main() {
 
-	// 1. Listen on a port
-	// 2. Get all the form details / parse the form
-	// 3. send an email with the form name and the key/value attributes
+// 1. Listen on a port
+// 2. Get all the form details / parse the form
+// 3. send an email with the form name and the key/value attributes
 
-}
+// }
 
 /*
 MVP Next Step:

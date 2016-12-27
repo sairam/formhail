@@ -1,0 +1,12 @@
+{{ $email := "hello@example.com" }}
+{{ partial "header" . }}
+<div class="text-left">
+
+<a name="faq_notification"></a>
+<h3>Question</h3>
+<p>Answer</p>
+
+<p>Drop an email to <a href="mailto:{{$email}}">{{$email}}</a></p>
+
+</div>
+{{ partial "footer" . }}

@@ -1,15 +1,19 @@
 package main
 
 // NOTE: Domain confirmation will happen through email only by requesting
+import (
+	"net/mail"
+	"net/url"
+)
 
 // SingleFormConfig has configuration for a single form
 type SingleFormConfig struct {
 	UID           string // UID is an alias to the Email, but a randomly generated string
-	Email         email
-	URL           url    // A page means a single page is supported
-	URLType       string // URLType can be page or domain or regexp for URL that needs to be matched
-	Confirmed     string // true / false / spam
-	ConfirmedDate string // datetime at which this confirmation was made
+	Email         *mail.Address
+	URL           *url.URL // A page means a single page is supported
+	URLType       string   // URLType can be page or domain or regexp for URL that needs to be matched
+	Confirmed     string   // true / false / spam
+	ConfirmedDate string   // datetime at which this confirmation was made
 
 	// Counters to track for incoming
 	Counter // TODO incoming counter should be at Domain or Email level instead of form level
@@ -20,9 +24,6 @@ type SingleFormConfig struct {
 	// Limits apply based on AccountType
 	notifications []*Notifier
 }
-
-type email string
-type url string
 
 // Notifier is always an outgoing notification sent
 type Notifier struct {
@@ -58,8 +59,8 @@ type AccountLimit struct {
 
 // UserSignInRequest is filled up when a user requests a validation/login
 type UserSignInRequest struct {
-	Email     email
-	Domain    url // generic login / domain related login
+	Email     string
+	Domain    *url.URL // generic login / domain related login
 	RandomID  string
 	Status    string // used / spam / notused
 	ReqTime   int64  // requested time request epoch
@@ -67,18 +68,20 @@ type UserSignInRequest struct {
 	SEndTime  int64  // Session End Time request epoch
 }
 
-// NewNotification is the incoming structure to fill when a form is submitted
-type NewNotification struct {
-	Referral   url      // mandatory to be verified
-	Identifier string   // Identifier is the email or UID present in the form POST url
-	ReplyTo    email    // optional
-	NextPage   url      // optional
-	Subject    string   // optional
-	Cc         []*email // optional
-	Format     string   // optional, default html , set to plain
-	Gotcha     string   // should be ignored when set to any string other than blank
+// IncomingRequest is the incoming structure to fill when a form is submitted
+type IncomingRequest struct {
+	Referral   *url.URL        // mandatory to be verified
+	Identifier string          // Identifier is the email or UID present in the form POST url
+	IDType     string          // type is email or id
+	ReplyTo    *mail.Address   // optional
+	NextPage   *url.URL        // optional
+	Subject    string          // optional
+	Cc         []*mail.Address // optional
+	Format     []string        // optional, default html , set to plain
+	// Gotcha     string          // should be ignored when set to any string other than blank
 
 	Message map[string][]string // url.Values from the form after removing the optional ones
 
-	DateTime int64 // datetime at which we have received the request
+	DateTime   int64 // datetime at which we have received the request
+	RemoteAddr string
 }
