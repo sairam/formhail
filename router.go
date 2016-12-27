@@ -22,19 +22,25 @@ func initRouter() {
 		kinli.DisplayPage(w, "faq", page)
 	}).Methods("GET")
 
+	r.HandleFunc("/example", func(w http.ResponseWriter, r *http.Request) {
+		hc := &kinli.HttpContext{W: w, R: r}
+		page := kinli.NewPage(hc, "Example Form", "", "", nil)
+		kinli.DisplayPage(w, "example", page)
+	}).Methods("GET")
+
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		hc := &kinli.HttpContext{W: w, R: r}
 		page := kinli.NewPage(hc, "hello page", "", "", nil)
 		kinli.DisplayPage(w, "home", page)
 	}).Methods("GET")
 
-	r.HandleFunc("/", NewSubmissionRequest).Methods("POST")
+	r.HandleFunc("/{uid}", NewSubmissionRequest).Methods("POST")
 
 	initStatic(r)
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         "localhost:3000",
+		Addr:         config.LocalServer,
 		WriteTimeout: 60 * time.Second,
 		ReadTimeout:  60 * time.Second,
 	}

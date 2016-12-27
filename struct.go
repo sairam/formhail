@@ -8,6 +8,7 @@ import (
 
 // SingleFormConfig has configuration for a single form
 type SingleFormConfig struct {
+	Name          string
 	UID           string // UID is an alias to the Email, but a randomly generated string
 	Email         *mail.Address
 	URL           *url.URL // A page means a single page is supported
@@ -18,7 +19,7 @@ type SingleFormConfig struct {
 	// Counters to track for incoming
 	Counter // TODO incoming counter should be at Domain or Email level instead of form level
 
-	*AccountType // Links to an Account Type
+	accType *AccountType // Links to an Account Type
 
 	// All notifications to external points can be configured through this
 	// Limits apply based on AccountType
@@ -84,4 +85,10 @@ type IncomingRequest struct {
 
 	DateTime   int64 // datetime at which we have received the request
 	RemoteAddr string
+}
+
+// ProcessedRequest links incoming request and the config initially provided by the user
+type ProcessedRequest struct {
+	*IncomingRequest
+	*SingleFormConfig
 }

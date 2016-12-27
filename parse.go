@@ -2,9 +2,11 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/mail"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gorilla/schema"
@@ -54,7 +56,65 @@ func formHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	not.Message = removeRestrictedFields(r.PostForm)
+	fmt.Println(not)
+
+	// TODO: logic follows
+
+	pr, err := newProcessedRequest(not)
+	if err != nil {
+		fmt.Println(err)
+	} else if pr.DidLimitReach() {
+		fmt.Println("Limit Reached")
+	} else {
+		pr.Incr()
+		go func() {
+			pr.sendEmail()
+			// pr.save()
+		}()
+	}
+
 	return nil
+}
+
+// TODO fix
+// DidLimitReach did we reach the limit for the account?
+func (c *SingleFormConfig) DidLimitReach() bool {
+	// check a store based on c.id.
+	return false
+	// DidLimitReach returns error in case limit is exceeded
+}
+
+// Incr usage field
+func (c *SingleFormConfig) Incr() {
+	// TODO
+	// verify the limit based on the account type
+	// incr with a lock and save to store
+}
+
+// should be done with lock to avoid concurrent transactions
+// looks through all formConfigs and fetches the one this matches
+func findSingleFormConfig(identifier, idType string) (*SingleFormConfig, error) {
+
+	website, _ := url.Parse("http://example.com/")
+	address, _ := mail.ParseAddress("user@example.com")
+
+	// TODO mocking for now
+	return &SingleFormConfig{
+		Email: address,
+		URL:   website,
+		Name:  "Bulk Orders",
+	}, nil
+}
+
+func newProcessedRequest(not *IncomingRequest) (*ProcessedRequest, error) {
+	pr := &ProcessedRequest{
+		IncomingRequest: not,
+	}
+	formConfig, err := findSingleFormConfig(not.Identifier, not.IDType)
+	if err == nil {
+		pr.SingleFormConfig = formConfig
+	}
+	return pr, err
 }
 
 // Validate by querying the data store
@@ -94,12 +154,16 @@ func (not *IncomingRequest) ParseFormFields(referrer, requestURI string, form *f
 
 	if form.CcString != "" {
 		var ccList []*mail.Address
-		ccList, err = mail.ParseAddressList(form.CcString)
+		ccList, err = mail.ParseAddressList(strings.Trim(form.CcString, ","))
 		if err == nil {
 			maxCount := min(len(ccList), ccListLimit)
 			ccList = ccList[:maxCount]
 			not.Cc = ccList
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		not.Cc = make([]*mail.Address, 0)
 	}
 
 	if form.Subject == "" {
@@ -117,10 +181,10 @@ func (not *IncomingRequest) ParseFormFields(referrer, requestURI string, form *f
 		}
 	}
 
-	if form.Format == "text" {
-		not.Format = []string{"text"}
+	if form.Format == "plain" {
+		not.Format = []string{"plain"}
 	} else {
-		not.Format = []string{"html", "text"}
+		not.Format = []string{"html", "plain"}
 	}
 
 	if addr, err := mail.ParseAddress(form.ReplyTo); err == nil {

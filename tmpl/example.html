@@ -1,0 +1,25 @@
+{{ partial "header" . }}
+
+<form action="http://localhost:3000/user@example.com" method="POST">
+  <input type="hidden" name="_cc" value="test1@example.com,test2@example.com," />
+  <input type="hidden" name="email" value="customer@example.com" />
+  <input type="text" name="yo" value="Yo yo ma!" />
+
+  <select name="selectbox" multiple>
+    <option value="selected1" selected="selected">1</option>
+    <option value="selected2" selected="selected">2</option>
+    <option value="selected3" selected="selected">3</option>
+    <option value="selected5">0</option>
+  </select>
+  <textarea name="message">"Yo yo ma!"</textarea>
+
+  <input type="checkbox" value="go" checked="true" name="codelist[]" />
+  <input type="checkbox" value="java" checked="true" name="codelist[]" />
+  <input type="checkbox" value="ruby" checked="true" name="codelist[]" />
+  <input type="checkbox" value="javascript"  name="codelist[]" />
+
+  <input type="checkbox" checked="true" name="AgreeToTerms" />
+  <input type="submit" class="btn btn-lg btn-success" />
+</form>
+
+{{ partial "footer" . }}

@@ -1,0 +1,17 @@
+Hello,
+
+A new lead has been made on your website {{.UsersWebsite}} <a href="{{.UsersPage}}">{{.UsersPage}}</a>
+
+---------------------------------------------------------------------------------------------------
+
+*{{ .FormName }}*
+{{ range $key, $msg := .Message }}
+{{ formatKeyArray $key $msg "plain" }}
+{{ end }}
+
+---------------------------------------------------------------------------------------------------
+
+--
+You are receiving this because you have subscribed at <a href="{{ .WebsiteURL }}">FormHut</a>
+This email is prepared for {{.EmailTo}}
+<a href="{{ .WebsiteURL }}">unsubscribe here</a> if you no longer wish to recieve these messages
