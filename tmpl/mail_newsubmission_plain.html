@@ -1,13 +1,12 @@
 Hello,
 
-A new lead has been made on your website {{.UsersWebsite}} <a href="{{.UsersPage}}">{{.UsersPage}}</a>
+A new lead has been made on your website {{.UsersWebsite}} | {{.UsersPage}}
 
 ---------------------------------------------------------------------------------------------------
 
 *{{ .FormName }}*
 {{ range $key, $msg := .Message }}
-{{ formatKeyArray $key $msg "plain" }}
-{{ end }}
+{{ formatKeyArray $key $msg "plain" }}{{ end }}
 
 ---------------------------------------------------------------------------------------------------
 

@@ -22,6 +22,7 @@ func hello(name string) string {
 	return fmt.Sprintf("hello %s", name)
 }
 
+// TODO take care of multi line inputs at data[0],data[1] etc.,
 func formatKeyArray(name string, data []string, format string) string {
 	if len(data) == 0 {
 		return ""
@@ -33,6 +34,7 @@ func formatKeyArray(name string, data []string, format string) string {
 		} else {
 			list = data[0]
 		}
+		list = strings.Replace(list, "\n", "<br/>", -1)
 		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", name, list)
 	}
 	list := strings.Join(data, ", ")

@@ -47,6 +47,7 @@ func init() {
 // 	e.SendEmail()
 // }
 
+// TODO: plain should remove multiple line inputs by removing \n\n\n to \n
 // send email for the customer once the user's website is whitelisted
 func (pr *ProcessedRequest) sendEmail() {
 	m := &ProcessedRequestMailContent{}
