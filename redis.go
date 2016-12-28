@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	msgpack "gopkg.in/vmihailenco/msgpack.v2"
 
@@ -82,4 +83,24 @@ func (db *redisDB) autoincr(key string) int64 {
 	}
 
 	return out.(int64)
+}
+
+func (db *redisDB) setKeyValue(key, value string) {
+	c := redisPool.Get()
+	defer c.Close()
+	_, err := c.Do("SET", key, value)
+	if err != nil {
+		log.Printf("error setting value %s | %s", key, value)
+	}
+}
+
+func (db *redisDB) getKeyValue(key string) string {
+	c := redisPool.Get()
+	defer c.Close()
+
+	out, err := c.Do("GET", key)
+	if out == nil || err != nil {
+		return ""
+	}
+	return string(out.([]byte))
 }

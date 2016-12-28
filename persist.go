@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 // Persist and loading of data
 
@@ -30,4 +34,28 @@ func (sfc *SingleFormConfig) save() bool {
 
 func (sfc *SingleFormConfig) autoincr() int64 {
 	return (&redisDB{}).autoincr("SingleFormConfig")
+}
+
+// Index saves the email/domain mapping
+func (sfc *SingleFormConfig) Index() {
+	email := sfc.Email.Address
+	domain := sfc.URL.String()
+
+	key := strings.Join([]string{"SFCIndex", "domemail", email, domain}, ":")
+	id := fmt.Sprintf("%d", sfc.ID)
+	(&redisDB{}).setKeyValue(key, id)
+}
+
+// FindIndex locates and loads the config
+func (sfc *SingleFormConfig) FindIndex(email, domain string) {
+	fmt.Println(email, domain)
+	key := strings.Join([]string{"SFCIndex", "domemail", email, domain}, ":")
+	t := (&redisDB{}).getKeyValue(key)
+	i, err := strconv.Atoi(t)
+	fmt.Println(i)
+	fmt.Println(err)
+	if err != nil || i == 0 {
+		return
+	}
+	sfc.load(i)
 }

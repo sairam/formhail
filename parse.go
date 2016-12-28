@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
+	"math/rand"
 	"net/http"
 	"net/mail"
 	"net/url"
@@ -58,59 +60,171 @@ func formHandler(w http.ResponseWriter, r *http.Request) error {
 	not.Message = removeRestrictedFields(r.PostForm)
 	fmt.Println(not)
 
-	// TODO: logic follows
+	// cases - user/domain
+	// 1. is not registered
+	// 2. is blacklisted / limit exceeded
+	// 3. has enough limit
 
 	pr, err := newProcessedRequest(not)
-	if err != nil {
-		fmt.Println(err)
+	var message string
+	if pr.SingleFormConfig == nil || err != nil {
+		log.Println(err)
+		sfc, err := newSingleFormConfig(not)
+		log.Printf("%+v", sfc)
+		if err != nil {
+			message = "error. smth"
+		}
+		message = "First time user, check email"
+		// is not registered
+	} else if pr.YetToBeConfirmed() {
+		fmt.Println("to be confirmed")
+	} else if pr.IsBlacklisted() {
+		fmt.Println("blacklisted")
 	} else if pr.DidLimitReach() {
 		fmt.Println("Limit Reached")
 	} else {
-		pr.Incr()
-		go func() {
-			pr.sendEmail()
-			// pr.save()
-		}()
+		pr.IncrIncoming()
+		if !pr.save() {
+			fmt.Println("save notifications failed")
+		} else {
+			pr.SendNotifications()
+		}
 	}
-
+	fmt.Println(message)
 	return nil
 }
 
-// TODO fix
-// DidLimitReach did we reach the limit for the account?
-func (c *SingleFormConfig) DidLimitReach() bool {
-	// check a store based on c.id.
-	return false
-	// DidLimitReach returns error in case limit is exceeded
+// responsible for creating and sending an email to the user
+func newSingleFormConfig(not *IncomingRequest) (*SingleFormConfig, error) {
+	if not.IDType != "email" {
+		return nil, errors.New("Incoming Request should be an email")
+	}
+	page := not.Referral.Path
+	page = strings.Trim(page, "/")
+	if page == "" {
+		page = "homepage"
+	}
+	email, _ := mail.ParseAddress(not.Identifier)
+	uri, _ := url.Parse(not.Referral.Host)
+	// TODO add err
+	sfc := &SingleFormConfig{
+		Name:        page,
+		UID:         RandString(20),
+		Email:       email,
+		URL:         uri,
+		Confirmed:   formConfigRequested,
+		AccountType: accountTypeBasic,
+		Counter: Counter{
+			Count:      0,
+			ChangeTime: 0,
+		},
+	}
+	sfc.ID = sfc.autoincr()
+	sfc.save()
+	sfc.Index()
+	return sfc, nil
 }
 
-// Incr usage field
-func (c *SingleFormConfig) Incr() {
-	// TODO
-	// verify the limit based on the account type
-	// incr with a lock and save to store
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
+// RandString helper method
+// source: http://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang
+// RandStringBytesMaskImprSrc
+func RandString(n int) string {
+	var src = rand.NewSource(time.Now().UnixNano())
+	b := make([]byte, n)
+	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			b[i] = letterBytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+
+	return string(b)
+}
+
+// SendNotifications sends notifications to all subscriptions
+func (pr *ProcessedRequest) SendNotifications() {
+	// take each of the outgoing notifications and run them through
+	for _, not := range pr.Notifications {
+		if not.EndPointType == "email" {
+			go func() { pr.sendEmail() }()
+		} else {
+			// write for slack, webhook etc.,
+		}
+	}
+}
+
+func (c *SingleFormConfig) YetToBeConfirmed() bool {
+	return c.Confirmed == formConfigUnconfirmed || c.Confirmed == formConfigRequested
+}
+
+func (c *SingleFormConfig) IsBlacklisted() bool {
+	return c.Confirmed == formConfigSpam
+}
+
+// DidLimitReach checks if we reached the limit for the account?
+// checks for incoming requests
+
+// TODO verify the limit based on the account type
+// incr with a lock and save to store
+func (c *SingleFormConfig) DidLimitReach() bool {
+	// no need to change the time
+	if c.ChangeTime == 0 {
+		c.ChangeTime = time.Now().Unix() - 10
+	}
+	accLimit := c.accType.Limits["incoming:form"]
+	currentTime := time.Now().Unix()
+	for currentTime > c.ChangeTime {
+		fmt.Println("time diff is ", currentTime-c.ChangeTime)
+		c.ChangeTime += accLimit.Period
+		c.Count = 0
+	}
+	if c.Count < accLimit.Limit {
+		return false
+	}
+	return true
+}
+
+// TODO incr with a lock
+// IncrIncoming usage field
+func (c *SingleFormConfig) IncrIncoming() {
+	c.Count = c.Count + 1
 }
 
 // should be done with lock to avoid concurrent transactions
 // looks through all formConfigs and fetches the one this matches
-func findSingleFormConfig(identifier, idType string) (*SingleFormConfig, error) {
-
-	website, _ := url.Parse("http://example.com/")
-	address, _ := mail.ParseAddress("user@example.com")
-
-	// TODO mocking for now
-	return &SingleFormConfig{
-		Email: address,
-		URL:   website,
-		Name:  "Bulk Orders",
-	}, nil
+func findSingleFormConfig(idType, identifier, fqdn string) (*SingleFormConfig, error) {
+	// TODO based on idType, we could have mtuliple forms
+	sfc := &SingleFormConfig{}
+	if strings.TrimSpace(identifier) == "" {
+		return sfc, errors.New("identifier is empty")
+	}
+	sfc.FindIndex(identifier, fqdn)
+	if sfc.ID == 0 {
+		return sfc, errors.New("Could not find in db")
+	}
+	return sfc, nil
 }
 
 func newProcessedRequest(not *IncomingRequest) (*ProcessedRequest, error) {
 	pr := &ProcessedRequest{
 		IncomingRequest: not,
 	}
-	formConfig, err := findSingleFormConfig(not.Identifier, not.IDType)
+	// we are ignoring scheme intentionally
+	fqdn := not.Referral.Host
+	formConfig, err := findSingleFormConfig(not.IDType, not.Identifier, fqdn)
 	if err == nil {
 		pr.SingleFormConfig = formConfig
 	}
@@ -138,7 +252,7 @@ func (not *IncomingRequest) ParseFormFields(referrer, requestURI string, form *f
 		return errors.New("Request URI is not parsable")
 	}
 
-	requestID := uri.Path
+	requestID := strings.Trim(uri.Path, "/")
 	emailID, err := mail.ParseAddress(requestID)
 	if err == nil {
 		not.Identifier = emailID.Address

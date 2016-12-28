@@ -6,7 +6,7 @@ type seed struct{}
 // (&seed{}).accountTypes()
 func (*seed) accountTypes() {
 	var at = &AccountType{}
-	at.Name = "basic" // plan name
+	at.Name = accountTypeBasic // plan name
 	var als = []AccountLimit{
 		AccountLimit{
 			Type:   "incoming:form",

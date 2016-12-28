@@ -6,6 +6,18 @@ import (
 	"net/url"
 )
 
+var (
+	formConfigRequested   = "requested"   // someone has requested this, we are yet to send the email
+	formConfigUnconfirmed = "unconfirmed" // unconfirmed means that we have sent the email, but its not yet confirmed
+	formConfigConfirmed   = "confirmed"   // confirmed means the email was clicked
+	formConfigSpam        = "spam"        // unconfirmed can transition to spam/confirmed
+
+	accountTypeBasic = "basic"
+
+	idTypeEmail = "email"
+	idTypeUID   = "uid"
+)
+
 // SingleFormConfig has configuration for a single form
 type SingleFormConfig struct {
 	ID            int64 // unique internal identifier, auto incrementer
@@ -14,7 +26,7 @@ type SingleFormConfig struct {
 	Email         *mail.Address
 	URL           *url.URL // A page means a single page is supported
 	URLType       string   // URLType can be page or domain or regexp for URL that needs to be matched
-	Confirmed     string   // true / false / spam
+	Confirmed     string   // formConfigRequested, formConfigConfirmed, formConfigUnconfirmed, formConfigSpam
 	ConfirmedDate string   // datetime at which this confirmation was made
 
 	// Counters to track for incoming
@@ -25,7 +37,7 @@ type SingleFormConfig struct {
 
 	// All notifications to external points can be configured through this
 	// Limits apply based on AccountType
-	Notifications map[string]*Notifier
+	Notifications map[string]*Notifier // default outgoing notification is added on confirmation
 }
 
 // Notifier is always an outgoing notification sent
