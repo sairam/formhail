@@ -6,11 +6,16 @@ import (
 	"net/url"
 )
 
-var (
+const (
 	formConfigRequested   = "requested"   // someone has requested this, we are yet to send the email
 	formConfigUnconfirmed = "unconfirmed" // unconfirmed means that we have sent the email, but its not yet confirmed
 	formConfigConfirmed   = "confirmed"   // confirmed means the email was clicked
 	formConfigSpam        = "spam"        // unconfirmed can transition to spam/confirmed
+
+	// notifier end point types
+	endpointTypeEmail   = "email"
+	endpointTypeSlack   = "slack"
+	endpointTypeWebhook = "webhook"
 
 	accountTypeBasic = "basic"
 
@@ -94,7 +99,7 @@ type IncomingRequest struct {
 	Subject    string          // optional
 	Cc         []*mail.Address // optional
 	Format     []string        // optional, default html , set to plain
-	// Gotcha     string          // should be ignored when set to any string other than blank
+	Gotcha     string          // should be ignored when set to any string other than blank
 
 	Message map[string][]string // url.Values from the form after removing the optional ones
 

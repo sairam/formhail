@@ -158,25 +158,30 @@ func RandString(n int) string {
 func (pr *ProcessedRequest) SendNotifications() {
 	// take each of the outgoing notifications and run them through
 	for _, not := range pr.Notifications {
-		if not.EndPointType == "email" {
+		if not.EndPointType == endpointTypeEmail {
 			go func() { pr.sendEmail() }()
+		} else if not.EndPointType == endpointTypeSlack {
+			pr.sendToSlack(not.EndPointURL)
+		} else if not.EndPointType == endpointTypeWebhook {
+			pr.sendToWebhook(not.EndPointURL)
 		} else {
-			// write for slack, webhook etc.,
+			// not supported
 		}
 	}
 }
 
+// YetToBeConfirmed ..
 func (c *SingleFormConfig) YetToBeConfirmed() bool {
 	return c.Confirmed == formConfigUnconfirmed || c.Confirmed == formConfigRequested
 }
 
+// IsBlacklisted ..
 func (c *SingleFormConfig) IsBlacklisted() bool {
 	return c.Confirmed == formConfigSpam
 }
 
 // DidLimitReach checks if we reached the limit for the account?
 // checks for incoming requests
-
 // TODO verify the limit based on the account type
 // incr with a lock and save to store
 func (c *SingleFormConfig) DidLimitReach() bool {
@@ -197,8 +202,8 @@ func (c *SingleFormConfig) DidLimitReach() bool {
 	return true
 }
 
-// TODO incr with a lock
 // IncrIncoming usage field
+// TODO incr with a lock
 func (c *SingleFormConfig) IncrIncoming() {
 	c.Count = c.Count + 1
 }
