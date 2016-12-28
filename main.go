@@ -1,9 +1,7 @@
 package main
 
 func main() {
-	// add a config and key management struct
 	// add a router
 	initRouter()
-
-	// take in incoming requests
+	// anything after this statement will not be executed :)
 }

@@ -8,6 +8,7 @@ import (
 
 // SingleFormConfig has configuration for a single form
 type SingleFormConfig struct {
+	ID            int64 // unique internal identifier, auto incrementer
 	Name          string
 	UID           string // UID is an alias to the Email, but a randomly generated string
 	Email         *mail.Address
@@ -19,11 +20,12 @@ type SingleFormConfig struct {
 	// Counters to track for incoming
 	Counter // TODO incoming counter should be at Domain or Email level instead of form level
 
-	accType *AccountType // Links to an Account Type
+	AccountType string
+	accType     *AccountType // Links to an Account Type via the string
 
 	// All notifications to external points can be configured through this
 	// Limits apply based on AccountType
-	notifications []*Notifier
+	Notifications map[string]*Notifier
 }
 
 // Notifier is always an outgoing notification sent
@@ -39,14 +41,15 @@ type Notifier struct {
 
 // Counter to track no. of requests processed till ChangeTime. links to AccountLimit through AccountType
 type Counter struct {
-	Count      int   // current no of requests served
+	Count      int64 // current no of requests served
 	ChangeTime int64 // Next ChangeTime calculated when Count reaches the Limit
 }
 
 // AccountType has a name, description and limits based on the type of channel
 type AccountType struct {
-	Name   string                  // Basic
-	Limits map[string]AccountLimit // Has different Configuration
+	Name        string // Basic
+	Description string
+	Limits      map[string]AccountLimit // Has different Configuration
 }
 
 // AccountLimit defines how many requests can be accepted per a period
@@ -54,8 +57,8 @@ type AccountLimit struct {
 	Type string // incoming, outgoing:slack, outgoing:email, outgoing:webhook
 	// Limit & Period are configurable at Account / User level
 	// if limit is -1, unlimited will be sent.
-	Limit  int // no. of Requests to limit to until ChangeTime
-	Period int // no. of seconds from ChangeTime it will reset to ChangeTime += Period & Count = 0
+	Limit  int64 // no. of Requests to limit to until ChangeTime
+	Period int64 // no. of seconds from ChangeTime it will reset to ChangeTime += Period & Count = 0
 }
 
 // UserSignInRequest is filled up when a user requests a validation/login
