@@ -1,0 +1,20 @@
+<p>Hello,<br><br>
+
+A login request for FormHut, the free lead to CRM integration<br><br>
+
+To login, visit the link
+<ul><li>{{ .WebsiteURL }}/logmein?type=login&amp;token={{ .Token }}</li></ul>
+
+Kindly click the link within 1 day to login to your account.<br><br>
+
+To report this as spam, visit. No new requests to this email will reach you.
+<ul><li>{{ .WebsiteURL }}/logmein?type=login&amp;report=spam&amp;token={{ .Token }}</li></ul>
+</p>
+
+<p style="font-size:small;-webkit-text-size-adjust:none;color:#666;">&mdash;<br>
+  You have received this email since someone has requested to signin through <a href="{{ .WebsiteURL }}">FormHut</a><br>
+  <a href="{{ .WebsiteURL }}/logmein?type=spam&amp;token={{ .Token }}">click here to report the issue</a></p>
+  This email is prepared for {{ .EmailTo }}<br><br>
+
+  FormHut - {{ .WebsiteURL }}, Lead CRM integration tool
+</p>

@@ -14,6 +14,7 @@ type AppConfig struct {
 	TemplatePartialsDir string // tmpl/partials/
 	FromEmail           *mail.Address
 	SlackUserName       string
+	SessionName         string
 
 	once sync.Once
 }
@@ -35,5 +36,6 @@ func (config *AppConfig) init() {
 	config.TemplatePartialsDir = os.Getenv("TEMPLATE_PARTIALS_DIR")
 	config.FromEmail = &mail.Address{Address: os.Getenv("FROM_EMAIL"), Name: os.Getenv("FROM_NAME")}
 	config.SlackUserName = "formhut"
+	config.SessionName = "_formhut"
 
 }

@@ -19,6 +19,9 @@ const (
 
 	accountTypeBasic = "basic"
 
+	sirequestTypeConfirm = "confirmation"
+	sirequestTypeLogin   = "login"
+
 	idTypeEmail = "email"
 	idTypeUID   = "uid"
 )
@@ -80,13 +83,15 @@ type AccountLimit struct {
 
 // UserSignInRequest is filled up when a user requests a validation/login
 type UserSignInRequest struct {
-	Email     string
-	Domain    *url.URL // generic login / domain related login
-	RandomID  string
-	Status    string // used / spam / notused
-	ReqTime   int64  // requested time request epoch
-	ValidTime int64  // valid time of RandomID uses time request epoch
-	SEndTime  int64  // Session End Time request epoch
+	ID          int64 // auto incr key
+	Email       string
+	Domain      string // generic login / domain related login
+	Token       string
+	RequestType string // RequestType is either "confirmation" or "login"
+	Status      string // used / spam / notused
+	ReqTime     int64  // requested time request epoch
+	ValidTime   int64  // valid time of RandomID uses time request epoch
+	SEndTime    int64  // Session End Time request epoch
 }
 
 // IncomingRequest is the incoming structure to fill when a form is submitted
@@ -99,7 +104,7 @@ type IncomingRequest struct {
 	Subject    string          // optional
 	Cc         []*mail.Address // optional
 	Format     []string        // optional, default html , set to plain
-	Gotcha     string          // should be ignored when set to any string other than blank
+	// Gotcha     string          // should be ignored when set to any string other than blank
 
 	Message map[string][]string // url.Values from the form after removing the optional ones
 

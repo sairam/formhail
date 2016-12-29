@@ -1,0 +1,20 @@
+<p>Hello,<br><br>
+
+A request for FormHut, the free lead to CRM integration, has been made from {{ .UsersDomain }}<br><br>
+
+To confirm the request and accept submissions to this email address visit
+<ul><li>{{ .WebsiteURL }}/logmein?type=confirm&amp;token={{ .Token }}</li></ul>
+
+Kindly click the link within 1 day.<br><br>
+
+If you did not make this request, report using the link below. No new requests to this email will reach you.
+<ul><li>{{ .WebsiteURL }}/logmein?type=confirm&amp;report=spam&amp;token={{ .Token }}</li></ul>
+</p>
+
+<p style="font-size:small;-webkit-text-size-adjust:none;color:#666;">&mdash;<br>
+  You are receiving this email because someone has requested this from <a href="{{ .WebsiteURL }}">FormHut</a><br>
+  Kindly use the report url or reply this email to report an issue<br>
+  This email is prepared for {{ .EmailTo }}<br><br>
+
+  FormHut - {{ .WebsiteURL }}, Lead CRM integration tool
+</p>
