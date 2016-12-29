@@ -12,6 +12,7 @@ import (
 	"github.com/sairam/kinli"
 )
 
+// InitRouter start the router/subrouters
 func InitRouter() {
 	r := mux.NewRouter()
 
@@ -37,7 +38,7 @@ func InitRouter() {
 		kinli.DisplayPage(w, "home", page)
 	}).Methods("GET")
 
-	r.HandleFunc("/{uid}", service.NewSubmissionRequest).Methods("POST")
+	r.HandleFunc("/{uid}", service.FormSubmissionRequest).Methods("POST")
 
 	initStatic(r)
 

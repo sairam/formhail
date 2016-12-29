@@ -8,6 +8,16 @@ import (
 	"github.com/sairam/kinli"
 )
 
+// IsUserAuthed is a helper method to identify if user is logged in
+func IsUserAuthed(hc *kinli.HttpContext) bool {
+	u := hc.GetSessionData("user")
+	if user, ok := u.(*UserSession); ok && user.Email != "" {
+		return true
+	}
+	return false
+}
+
+// Session handles are login/logout related business logic
 type Session struct{}
 
 // Login Action called on GET/POST and any error on email adress renders a simple login form

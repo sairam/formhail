@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"time"
 
+	"../helper"
 	"../model"
 )
 
@@ -93,7 +94,7 @@ func makeUserSignInRequest(email, domain, requestType string) (*model.UserSignIn
 		Email:       email,
 		Domain:      domain,
 		RequestType: requestType,
-		Token:       RandString(40),
+		Token:       helper.RandString(40),
 		Status:      "notused",
 		ReqTime:     currTime,
 		ValidTime:   currTime + oneDay, // 1 day

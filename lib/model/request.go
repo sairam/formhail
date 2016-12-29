@@ -1,17 +1,8 @@
 package model
 
 import (
-	"errors"
-	"log"
 	"net/mail"
 	"net/url"
-	"strings"
-
-	"../helper"
-)
-
-const (
-	ccListLimit = 10
 )
 
 // IncomingRequest is the incoming structure to fill when a form is submitted
@@ -45,77 +36,5 @@ type FormRequest struct {
 
 // Validate by querying the data store
 func (not *IncomingRequest) Validate() error {
-	return nil
-}
-
-// ParseFormFields parses the input data and fills in the struct
-func (not *IncomingRequest) ParseFormFields(referrer, requestURI string, form *FormRequest) error {
-
-	var err error
-
-	form.Referral, err = url.Parse(referrer)
-	if err != nil {
-		return errors.New("Referral is blank")
-	}
-	not.Referral = form.Referral
-
-	uri, err := url.ParseRequestURI(requestURI)
-	if err != nil {
-		return errors.New("Request URI is not parsable")
-	}
-
-	requestID := strings.Trim(uri.Path, "/")
-	emailID, err := mail.ParseAddress(requestID)
-	if err == nil {
-		not.Identifier = emailID.Address
-		not.IDType = "email"
-	} else {
-		not.Identifier = requestID
-		not.IDType = "requestID"
-	}
-
-	if form.Gotcha != "" {
-		return errors.New("Gotcha is set. Expected not to exist")
-	}
-
-	if form.CcString != "" {
-		var ccList []*mail.Address
-		ccList, err = mail.ParseAddressList(strings.Trim(form.CcString, ","))
-		if err == nil {
-			maxCount := helper.Min(len(ccList), ccListLimit)
-			ccList = ccList[:maxCount]
-			not.Cc = ccList
-		} else {
-			log.Println(err)
-		}
-	} else {
-		not.Cc = make([]*mail.Address, 0)
-	}
-
-	if form.Subject == "" {
-		not.Subject = "Form Filled at " + form.Referral.Path
-	} else {
-		not.Subject = form.Subject
-	}
-
-	if form.NextPage == "" {
-		not.NextPage = form.Referral
-	} else {
-		not.NextPage, err = url.Parse(form.NextPage)
-		if err != nil {
-			not.NextPage = form.Referral
-		}
-	}
-
-	if form.Format == "plain" {
-		not.Format = []string{"plain"}
-	} else {
-		not.Format = []string{"html", "plain"}
-	}
-
-	if addr, err := mail.ParseAddress(form.ReplyTo); err == nil {
-		not.ReplyTo = addr
-	}
-
 	return nil
 }
