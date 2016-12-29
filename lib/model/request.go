@@ -23,17 +23,6 @@ type IncomingRequest struct {
 	RemoteAddr string
 }
 
-type FormRequest struct {
-	Referral   *url.URL `schema:"-"`
-	Identifier string   `schema:"-"`
-	ReplyTo    string   `schema:"_replyto"`
-	NextPage   string   `schema:"_next"`
-	Subject    string   `schema:"_subject"`
-	CcString   string   `schema:"_cc"`
-	Format     string   `schema:"_format"`
-	Gotcha     string   `schema:"_gotcha"`
-}
-
 // Validate by querying the data store
 func (not *IncomingRequest) Validate() error {
 	return nil

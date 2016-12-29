@@ -11,6 +11,10 @@ import (
 	"../model"
 )
 
+const (
+	oneDay = int64(60 * 60 * 24)
+)
+
 // if type=Confirm in UserSignInRequest, use the domain
 func verifyUserConfirmToken(token string) (user *UserSession, err error) {
 	sir := &model.UserSignInRequest{}
@@ -18,14 +22,17 @@ func verifyUserConfirmToken(token string) (user *UserSession, err error) {
 	if sir.ID == 0 || sir.RequestType != model.SirequestTypeConfirm {
 		return nil, errors.New("Could not find request")
 	}
+
 	// find request and assign
 	sfc := &model.SingleFormConfig{}
 	sfc.FindIndex(sir.Email, sir.Domain)
 	if sfc.Confirmed == model.FormConfigConfirmed {
 		return nil, errors.New("User/Token is already confirmed")
 	}
+
 	sfc.Confirmed = model.FormConfigConfirmed
 	sfc.ConfirmedDate = time.Now().String()
+
 	if sfc.Notifications == nil {
 		sfc.Notifications = make(map[string]*model.Notifier)
 	}
@@ -58,14 +65,16 @@ func verifyLoginToken(token string) (user *UserSession, err error) {
 }
 
 func sendConfirmToken(email, domain string) {
-	userSignInRequest, _ := makeUserSignInRequest(email, domain, model.SirequestTypeConfirm)
+	userSignInRequest, _ := newUserSignInRequest(email, domain, model.SirequestTypeConfirm)
 	userSignInRequest.Save()
 	userSignInRequest.Index()
-	userSignInRequest.SendEmail()
+	(&UserSignInService{UserSignInRequest: userSignInRequest}).SendEmail()
 }
 
-// makeAToken is the POST call that will send an email
-func makeAToken(r *http.Request) (err error) {
+// requestToAuthenticate takes in the email/domain and possibly captcha
+// and makes a token which the user can enter or click to login
+// This is the password less mechanism that takes care of on-demand authentication
+func requestToAuthenticate(r *http.Request) (err error) {
 	err = r.ParseForm()
 	if err != nil {
 		return
@@ -79,17 +88,16 @@ func makeAToken(r *http.Request) (err error) {
 	parsed, err := url.Parse(r.Form["domain"][0])
 	domain := parsed.Host
 
-	userSignInRequest, err := makeUserSignInRequest(email.Address, domain, model.SirequestTypeLogin)
+	userSignInRequest, err := newUserSignInRequest(email.Address, domain, model.SirequestTypeLogin)
 	userSignInRequest.Save()
 	userSignInRequest.Index()
-	userSignInRequest.SendEmail()
+	(&UserSignInService{UserSignInRequest: userSignInRequest}).SendEmail()
 
 	return
 }
 
-func makeUserSignInRequest(email, domain, requestType string) (*model.UserSignInRequest, error) {
+func newUserSignInRequest(email, domain, requestType string) (*model.UserSignInRequest, error) {
 	currTime := time.Now().Unix()
-	oneDay := int64(60 * 60 * 24)
 	usir := &model.UserSignInRequest{
 		Email:       email,
 		Domain:      domain,

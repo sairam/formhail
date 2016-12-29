@@ -25,7 +25,7 @@ func (Session) Login(w http.ResponseWriter, r *http.Request) {
 	hc := &kinli.HttpContext{W: w, R: r}
 
 	if r.Method == http.MethodPost {
-		err := makeAToken(r)
+		err := requestToAuthenticate(r)
 		if err != nil {
 			log.Println(err)
 			// page . display error message

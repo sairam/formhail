@@ -2,13 +2,8 @@ package model
 
 import (
 	"fmt"
-	"net/mail"
 	"strconv"
 	"strings"
-
-	"../common"
-
-	"github.com/sairam/kinli"
 )
 
 const (
@@ -27,14 +22,6 @@ type UserSignInRequest struct {
 	ReqTime     int64  // requested time request epoch
 	ValidTime   int64  // valid time of RandomID uses time request epoch
 	SEndTime    int64  // Session End Time request epoch
-}
-
-// UserSignInRequestMail mail content
-type UserSignInRequestMail struct {
-	WebsiteURL  string
-	EmailTo     string
-	UsersDomain string
-	Token       string
 }
 
 func (usir *UserSignInRequest) Load(id int) bool {
@@ -69,34 +56,4 @@ func (usir *UserSignInRequest) FindIndex(token string) {
 		return
 	}
 	usir.Load(i)
-}
-
-func (sir *UserSignInRequest) SendEmail() {
-	m := &UserSignInRequestMail{
-		WebsiteURL:  common.Config.WebsiteURL,
-		EmailTo:     sir.Email,
-		UsersDomain: sir.Domain,
-		Token:       sir.Token,
-	}
-	var mailTemplate string
-	if sir.RequestType == SirequestTypeConfirm {
-		mailTemplate = "confirm"
-	} else if sir.RequestType == SirequestTypeLogin {
-		mailTemplate = "signin"
-	} else {
-		return
-	}
-	plain, _ := kinli.GetPageContent("mail_"+mailTemplate+"_plain", m)
-	html, _ := kinli.GetPageContent("mail_"+mailTemplate, m)
-
-	email, _ := mail.ParseAddress(sir.Email)
-
-	e := &kinli.EmailCtx{
-		From:      common.Config.FromEmail,
-		To:        []*mail.Address{email},
-		Subject:   "New SignIn Request from Domain " + sir.Domain,
-		PlainBody: plain,
-		HTMLBody:  html,
-	}
-	e.SendEmail()
 }
