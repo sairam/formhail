@@ -1,33 +1,17 @@
-package main
+package service
 
 import (
 	"log"
 	"net/http"
-	"net/url"
-	"os"
 
-	"github.com/gorilla/sessions"
+	"../helper"
 	"github.com/sairam/kinli"
 )
 
-type session struct{}
-
-func init() {
-	kinli.SessionStore = sessions.NewFilesystemStore("./sessions", []byte(os.Getenv("SESSION_STORE")))
-	kinli.SessionName = config.SessionName
-	kinli.IsAuthed = isAuthed
-}
-
-func isAuthed(hc *kinli.HttpContext) bool {
-	u := hc.GetSessionData("user")
-	if user, ok := u.(*UserSession); ok && user.Email != "" {
-		return true
-	}
-	return false
-}
+type Session struct{}
 
 // Login Action called on GET/POST and any error on email adress renders a simple login form
-func (session) Login(w http.ResponseWriter, r *http.Request) {
+func (Session) Login(w http.ResponseWriter, r *http.Request) {
 	hc := &kinli.HttpContext{W: w, R: r}
 
 	if r.Method == http.MethodPost {
@@ -43,15 +27,14 @@ func (session) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	page := kinli.NewPage(hc, "Login", "", "", nil)
 	kinli.DisplayPage(w, "login", page)
-
 }
 
 // GET url user uses from the email
 // redirects to loggedin Page is successful or to /faq#errors page
-func (session) LogMeIn(w http.ResponseWriter, r *http.Request) {
-	loginRequestType := getFirstValue(r.URL.Query(), "type")
-	token := getFirstValue(r.URL.Query(), "token")
-	report := getFirstValue(r.URL.Query(), "report")
+func (Session) LogMeIn(w http.ResponseWriter, r *http.Request) {
+	loginRequestType := helper.GetFirstValue(r.URL.Query(), "type")
+	token := helper.GetFirstValue(r.URL.Query(), "token")
+	report := helper.GetFirstValue(r.URL.Query(), "report")
 	if loginRequestType != "confirm" && loginRequestType != "login" {
 		http.NotFound(w, r)
 		return
@@ -85,20 +68,7 @@ func (session) LogMeIn(w http.ResponseWriter, r *http.Request) {
 	// user is redirected to / or /dashboard based on the result
 }
 
-// UserSession information
-type UserSession struct {
-	Email  string
-	Domain string
-}
-
-func getFirstValue(q url.Values, key string) string {
-	if len(q[key]) == 0 {
-		return ""
-	}
-	return q[key][0]
-}
-
-func (session) Logout(w http.ResponseWriter, r *http.Request) {
+func (Session) Logout(w http.ResponseWriter, r *http.Request) {
 	hc := &kinli.HttpContext{W: w, R: r}
 	hc.ClearSession()
 	hc.RedirectUnlessAuthed("")

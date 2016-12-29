@@ -1,12 +1,11 @@
-package main
+package service
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"log"
-	"net/http"
 	"strings"
+
+	"../common"
+	"../helper"
 )
 
 // SlackMessage ..
@@ -48,25 +47,6 @@ func (s *SlackTypeLink) String() string {
 	return fmt.Sprintf("<%s|%s>", s.Href, s.Text)
 }
 
-// move to helper
-func postJSONtoURL(url string, data interface{}) error {
-	pr, pw := io.Pipe()
-	go func() {
-		// close the writer, so the reader knows there's no more data
-		defer pw.Close()
-
-		// write json data to the PipeReader through the PipeWriter
-		if err := json.NewEncoder(pw).Encode(data); err != nil {
-			log.Print(err)
-		}
-	}()
-
-	if _, err := http.Post(url, "application/json", pr); err != nil {
-		return err
-	}
-	return nil
-}
-
 // WebhookData used to send a webhook request
 // TODO Add formatted HTML and Text Message along with JSON data as Message
 type WebhookData struct {
@@ -75,17 +55,16 @@ type WebhookData struct {
 	FormName string
 }
 
-func (pr *ProcessedRequest) sendToWebhook(webhookURL string) error {
+func (pr *ProcessedRequest) SendToWebhook(webhookURL string) error {
 	data := &WebhookData{
 		Referral: pr.IncomingRequest.Referral.String(),
 		FormName: pr.SingleFormConfig.Name,
 		Message:  pr.IncomingRequest.Message,
 	}
-	return postJSONtoURL(webhookURL, data)
+	return helper.PostJSONtoURL(webhookURL, data)
 }
 
-func (pr *ProcessedRequest) sendToSlack(slackURL string) error {
-
+func (pr *ProcessedRequest) SendToSlack(slackURL string) error {
 	attachments := make([]SlackAttachment, 1)
 
 	msg := pr.IncomingRequest.Message
@@ -115,10 +94,10 @@ func (pr *ProcessedRequest) sendToSlack(slackURL string) error {
 	attachments = append(attachments, attachment)
 
 	message := &SlackMessage{
-		Username:    config.SlackUserName,
+		Username:    common.Config.SlackUserName,
 		Text:        fmt.Sprintf("*Got a New Submission from %s *:", pr.IncomingRequest.Referral.String()),
 		Attachments: attachments,
 	}
 
-	return postJSONtoURL(slackURL, message)
+	return helper.PostJSONtoURL(slackURL, message)
 }

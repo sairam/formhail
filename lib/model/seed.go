@@ -1,4 +1,4 @@
-package main
+package model
 
 type seed struct{}
 
@@ -6,7 +6,7 @@ type seed struct{}
 // (&seed{}).accountTypes()
 func (*seed) accountTypes() {
 	var at = &AccountType{}
-	at.Name = accountTypeBasic // plan name
+	at.Name = AccountTypeBasic // plan name
 	var als = []AccountLimit{
 		AccountLimit{
 			Type:   "incoming:form",
@@ -28,5 +28,5 @@ func (*seed) accountTypes() {
 	for _, al := range als {
 		at.Limits[al.Type] = al
 	}
-	at.save()
+	at.Save()
 }

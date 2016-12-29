@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	"net/mail"
@@ -15,14 +15,15 @@ type AppConfig struct {
 	FromEmail           *mail.Address
 	SlackUserName       string
 	SessionName         string
+	StaticFilesList     []string
 
 	once sync.Once
 }
 
-var config = new(AppConfig)
+var Config = &AppConfig{}
 
-func init() {
-	config.once.Do(func() { config.init() })
+func InitConfig() {
+	Config.once.Do(func() { Config.init() })
 }
 
 func (config *AppConfig) init() {
@@ -37,5 +38,5 @@ func (config *AppConfig) init() {
 	config.FromEmail = &mail.Address{Address: os.Getenv("FROM_EMAIL"), Name: os.Getenv("FROM_NAME")}
 	config.SlackUserName = "formhut"
 	config.SessionName = "_formhut"
-
+	config.StaticFilesList = []string{"/", "/home", "/faq"}
 }

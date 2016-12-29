@@ -1,4 +1,4 @@
-package main
+package formtoemail
 
 import (
 	"fmt"
@@ -8,18 +8,14 @@ import (
 	"github.com/sairam/kinli"
 )
 
-func init() {
+// InitView starts the view
+func InitView() {
 	kinli.ClientConfig = make(map[string]string)
 	kinli.ViewFuncs = template.FuncMap{
-		"hello":          hello,
 		"formatKeyArray": formatKeyArray,
 	}
 	kinli.CacheMode = false // remove for production
 	kinli.InitTmpl()
-}
-
-func hello(name string) string {
-	return fmt.Sprintf("hello %s", name)
 }
 
 // TODO take care of multi line inputs at data[0],data[1] etc.,

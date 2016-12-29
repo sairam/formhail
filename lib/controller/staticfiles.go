@@ -1,4 +1,4 @@
-package main
+package controller
 
 import (
 	"html/template"
@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"../common"
 
 	"github.com/gorilla/mux"
 )
@@ -29,7 +31,7 @@ func initStatic(r *mux.Router) {
 			Host    string
 			Pages   []string
 			Changed string
-		}{config.WebsiteURL, []string{"/", "/home"}, time.Now().Format("2006-01-02T15:00:00-07:00")})
+		}{common.Config.WebsiteURL, common.Config.StaticFilesList, time.Now().Format("2006-01-02T15:00:00-07:00")})
 	})
 
 }
