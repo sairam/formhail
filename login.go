@@ -58,6 +58,8 @@ func verifyLoginToken(token string) (user *UserSession, err error) {
 
 func sendConfirmToken(email, domain string) {
 	userSignInRequest, _ := makeUserSignInRequest(email, domain, sirequestTypeConfirm)
+	userSignInRequest.save()
+	userSignInRequest.Index()
 	userSignInRequest.sendEmail()
 }
 
@@ -77,6 +79,8 @@ func makeAToken(r *http.Request) (err error) {
 	domain := parsed.Host
 
 	userSignInRequest, err := makeUserSignInRequest(email.Address, domain, sirequestTypeLogin)
+	userSignInRequest.save()
+	userSignInRequest.Index()
 	userSignInRequest.sendEmail()
 
 	return
@@ -84,18 +88,18 @@ func makeAToken(r *http.Request) (err error) {
 
 // UserSignInRequestMail mail content
 type UserSignInRequestMail struct {
-	WebsiteURL   string
-	EmailTo      string
-	UsersDomain  string
-	Confirmation string
+	WebsiteURL  string
+	EmailTo     string
+	UsersDomain string
+	Token       string
 }
 
 func (sir *UserSignInRequest) sendEmail() {
 	m := &UserSignInRequestMail{
-		WebsiteURL:   config.WebsiteURL,
-		EmailTo:      sir.Email,
-		UsersDomain:  sir.Domain,
-		Confirmation: sir.Token,
+		WebsiteURL:  config.WebsiteURL,
+		EmailTo:     sir.Email,
+		UsersDomain: sir.Domain,
+		Token:       sir.Token,
 	}
 	var mailTemplate string
 	if sir.RequestType == sirequestTypeConfirm {

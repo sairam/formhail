@@ -55,7 +55,7 @@ func (pr *ProcessedRequest) sendEmail() {
 	m.EmailTo = pr.SingleFormConfig.Email.Address
 	m.WebsiteURL = config.WebsiteURL
 	m.FormName = pr.SingleFormConfig.Name
-	m.UsersWebsite = pr.SingleFormConfig.URL.String()
+	m.UsersWebsite = pr.SingleFormConfig.URL
 	m.UsersPage = pr.IncomingRequest.Referral.String()
 
 	plain, _ := kinli.GetPageContent("mail_newsubmission_plain", m)

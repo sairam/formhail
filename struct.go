@@ -32,10 +32,10 @@ type SingleFormConfig struct {
 	Name          string
 	UID           string // UID is an alias to the Email, but a randomly generated string
 	Email         *mail.Address
-	URL           *url.URL // A page means a single page is supported
-	URLType       string   // URLType can be page or domain or regexp for URL that needs to be matched
-	Confirmed     string   // formConfigRequested, formConfigConfirmed, formConfigUnconfirmed, formConfigSpam
-	ConfirmedDate string   // datetime at which this confirmation was made
+	URL           string // A page means a single page is supported
+	URLType       string // URLType can be page or domain or regexp for URL that needs to be matched
+	Confirmed     string // formConfigRequested, formConfigConfirmed, formConfigUnconfirmed, formConfigSpam
+	ConfirmedDate string // datetime at which this confirmation was made
 
 	// Counters to track for incoming
 	Counter // TODO incoming counter should be at Domain or Email level instead of form level

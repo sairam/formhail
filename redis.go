@@ -44,13 +44,13 @@ func (db *redisDB) load(key string, id string, i interface{}) bool {
 
 	data, err := c.Do("GET", fmt.Sprintf("%s:%s", key, id))
 	if data == nil || err != nil {
-		fmt.Println(key, id)
+		log.Println("error getting key", key, id)
 		return false
 	}
 
 	err = decodeStruct(data.([]byte), i)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("error", err)
 		return false
 	}
 	return true

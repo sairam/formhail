@@ -39,7 +39,7 @@ func (sfc *SingleFormConfig) autoincr() int64 {
 // Index saves the email/domain mapping
 func (sfc *SingleFormConfig) Index() {
 	email := sfc.Email.Address
-	domain := sfc.URL.String()
+	domain := sfc.URL
 
 	key := strings.Join([]string{"SFCIndex", "domemail", email, domain}, ":")
 	id := fmt.Sprintf("%d", sfc.ID)
@@ -51,8 +51,6 @@ func (sfc *SingleFormConfig) FindIndex(email, domain string) {
 	key := strings.Join([]string{"SFCIndex", "domemail", email, domain}, ":")
 	t := (&redisDB{}).getKeyValue(key)
 	i, err := strconv.Atoi(t)
-	fmt.Println(i)
-	fmt.Println(err)
 	if err != nil || i == 0 {
 		return
 	}
@@ -84,7 +82,7 @@ func (usir *UserSignInRequest) Index() {
 }
 
 // FindIndex finds based on the indexed data
-func (usir UserSignInRequest) FindIndex(token string) {
+func (usir *UserSignInRequest) FindIndex(token string) {
 	key := strings.Join([]string{"USIRIndex", "token", token}, ":")
 	t := (&redisDB{}).getKeyValue(key)
 	i, err := strconv.Atoi(t)
@@ -92,5 +90,4 @@ func (usir UserSignInRequest) FindIndex(token string) {
 		return
 	}
 	usir.load(i)
-
 }

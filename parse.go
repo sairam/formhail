@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -58,7 +57,6 @@ func formHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	not.Message = removeRestrictedFields(r.PostForm)
-	fmt.Println(not)
 
 	// cases - user/domain
 	// 1. is not registered
@@ -70,27 +68,28 @@ func formHandler(w http.ResponseWriter, r *http.Request) error {
 	if pr.SingleFormConfig == nil || err != nil {
 		log.Println(err)
 		sfc, err := newSingleFormConfig(not)
-		log.Printf("%+v", sfc)
 		if err != nil {
 			message = "error. smth"
 		}
 		message = "First time user, check email"
-		// is not registered
+		sendConfirmToken(sfc.Email.Address, sfc.URL)
+		pr.Confirmed = formConfigUnconfirmed
+		pr.save()
 	} else if pr.YetToBeConfirmed() {
-		fmt.Println("to be confirmed")
+		log.Println("to be confirmed")
 	} else if pr.IsBlacklisted() {
-		fmt.Println("blacklisted")
+		log.Println("blacklisted")
 	} else if pr.DidLimitReach() {
-		fmt.Println("Limit Reached")
+		log.Println("Limit Reached")
 	} else {
 		pr.IncrIncoming()
 		if !pr.save() {
-			fmt.Println("save notifications failed")
+			log.Println("save notifications failed")
 		} else {
 			pr.SendNotifications()
 		}
 	}
-	fmt.Println(message)
+	log.Println(message)
 	return nil
 }
 
@@ -105,13 +104,13 @@ func newSingleFormConfig(not *IncomingRequest) (*SingleFormConfig, error) {
 		page = "homepage"
 	}
 	email, _ := mail.ParseAddress(not.Identifier)
-	uri, _ := url.Parse(not.Referral.Host)
+
 	// TODO add err
 	sfc := &SingleFormConfig{
 		Name:        page,
 		UID:         RandString(20),
 		Email:       email,
-		URL:         uri,
+		URL:         not.Referral.Host,
 		Confirmed:   formConfigRequested,
 		AccountType: accountTypeBasic,
 		Counter: Counter{
@@ -192,7 +191,6 @@ func (c *SingleFormConfig) DidLimitReach() bool {
 	accLimit := c.accType.Limits["incoming:form"]
 	currentTime := time.Now().Unix()
 	for currentTime > c.ChangeTime {
-		fmt.Println("time diff is ", currentTime-c.ChangeTime)
 		c.ChangeTime += accLimit.Period
 		c.Count = 0
 	}
@@ -279,7 +277,7 @@ func (not *IncomingRequest) ParseFormFields(referrer, requestURI string, form *f
 			ccList = ccList[:maxCount]
 			not.Cc = ccList
 		} else {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	} else {
 		not.Cc = make([]*mail.Address, 0)

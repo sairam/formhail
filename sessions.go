@@ -52,12 +52,13 @@ func (session) LogMeIn(w http.ResponseWriter, r *http.Request) {
 	loginRequestType := getFirstValue(r.URL.Query(), "type")
 	token := getFirstValue(r.URL.Query(), "token")
 	report := getFirstValue(r.URL.Query(), "report")
-	if loginRequestType != sirequestTypeConfirm && loginRequestType != sirequestTypeLogin {
+	if loginRequestType != "confirm" && loginRequestType != "login" {
 		http.NotFound(w, r)
 		return
 	}
 	// var page kinli.Page
 	if report == "spam" {
+		log.Println("spammmed")
 		// report spam
 		// set page
 		// page = kinli.NewPage(hc, "Login", "", "", nil)
