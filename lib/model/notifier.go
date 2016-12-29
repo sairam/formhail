@@ -19,3 +19,32 @@ type Notifier struct {
 
 	Counter
 }
+
+func (n *Notifier) Validate() bool {
+	if n.EndPointType == EndpointTypeSlack ||
+		n.EndPointType == EndpointTypeWebhook ||
+		n.EndPointType == EndpointTypeEmail {
+		return true
+	}
+	// TODO add provider specific validations like validating end point by sending an email/POST request
+	return false
+}
+
+func (n *Notifier) IsInternal() bool {
+	if n.EndPointType == EndpointTypeEmail {
+		return true
+	}
+	return false
+}
+
+func (n *Notifier) RequiresVerification() bool {
+	if n.EndPointType == EndpointTypeSlack || n.EndPointType == EndpointTypeWebhook {
+		return false
+	}
+	return !n.Verified
+}
+
+func (n *Notifier) SetVerified(v bool) {
+	n.Verified = v
+	return
+}

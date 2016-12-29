@@ -20,7 +20,7 @@ func StringIn(list []string, key string) bool {
 	return false
 }
 
-// PostJSONtoURL ..
+// PostJSONtoURL uses a zero buffer mechanism to make a http.Post call as json
 func PostJSONtoURL(url string, data interface{}) error {
 	pr, pw := io.Pipe()
 	go func() {
@@ -39,7 +39,7 @@ func PostJSONtoURL(url string, data interface{}) error {
 	return nil
 }
 
-// GetFirstValue ..
+// GetFirstValue gets the first value from the array of options by key
 func GetFirstValue(q url.Values, key string) string {
 	if len(q[key]) == 0 {
 		return ""
@@ -62,7 +62,7 @@ const (
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
 
-// RandString helper method
+// RandString generates random alphabets
 // source: http://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang
 // RandStringBytesMaskImprSrc
 func RandString(n int) string {
