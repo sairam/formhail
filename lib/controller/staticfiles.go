@@ -17,7 +17,7 @@ func initStatic(r *mux.Router) {
 
 	// Handle Static Files
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, strings.Join([]string{"public", "favicon.ico"}, string(os.PathSeparator)))
+		http.ServeFile(w, r, strings.Join([]string{"static", "favicon.ico"}, string(os.PathSeparator)))
 	})
 
 	r.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +33,9 @@ func initStatic(r *mux.Router) {
 			Changed string
 		}{common.Config.WebsiteURL, common.Config.StaticFilesList, time.Now().Format("2006-01-02T15:00:00-07:00")})
 	})
+
+	s := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
+	r.PathPrefix("/static/").Handler(s)
 
 }
 

@@ -33,7 +33,8 @@
 * Limit on notifications based on NotificationType+Creds(limit emails to 1k submissions per duration)
 * Site Wide confirmation for multiple forms
 
-### Templates
+### Email Templates
+* Login Request Email (to authenticate the user), instead of the password
 * Confirmation Email
 * Submission Email
 
@@ -50,3 +51,13 @@
 
 ## Deployment
 * Set environment variables `set -a ; . .env ; set +a`
+
+## Pre-Requirements
+* Install `redis` and start `redis-server`
+* `gem install mailcatcher` and start `mailcatcher`
+
+## Development
+* `go get -u github.com/gorilla/schema`
+* `go get -u github.com/sairam/kinli`
+* `set -a ; . .env ; set +a`
+* `go run cmd/main.go`
