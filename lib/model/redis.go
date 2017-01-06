@@ -85,7 +85,7 @@ func (db *redisDB) autoincr(key string) int64 {
 	return out.(int64)
 }
 
-func (db *redisDB) setKeyValue(key, value string) {
+func (db *redisDB) setbykey(key, value string) {
 	c := redisPool.Get()
 	defer c.Close()
 	_, err := c.Do("SET", key, value)
@@ -94,7 +94,7 @@ func (db *redisDB) setKeyValue(key, value string) {
 	}
 }
 
-func (db *redisDB) getKeyValue(key string) string {
+func (db *redisDB) getbykey(key string) string {
 	c := redisPool.Get()
 	defer c.Close()
 

@@ -18,10 +18,12 @@ type AccountLimit struct {
 	Period int64 // no. of seconds from ChangeTime it will reset to ChangeTime += Period & Count = 0
 }
 
+// Load loads by name
 func (at *AccountType) Load(name string) bool {
-	return (&redisDB{}).load("AccountType", name, at)
+	return getDBStore().load("AccountType", name, at)
 }
 
+// Save saves by name
 func (at *AccountType) Save() bool {
-	return (&redisDB{}).save("AccountType", at.Name, at)
+	return getDBStore().save("AccountType", at.Name, at)
 }

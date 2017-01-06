@@ -18,6 +18,12 @@ const (
 	IDTypeUID   = "uid"
 )
 
+// type Model interface {
+// 	Load() bool
+// 	Save() bool
+// 	Autoincr() int64
+// }
+
 // SingleFormConfig has configuration for a single form
 type SingleFormConfig struct {
 	ID            int64 // unique internal identifier, auto incrementer
@@ -41,7 +47,7 @@ type SingleFormConfig struct {
 }
 
 func (sfc *SingleFormConfig) Load(id int) bool {
-	success := (&redisDB{}).load("SingleFormConfig", fmt.Sprintf("%d", id), sfc)
+	success := getDBStore().load("SingleFormConfig", fmt.Sprintf("%d", id), sfc)
 	if !success {
 		return false
 	}
@@ -53,11 +59,11 @@ func (sfc *SingleFormConfig) Load(id int) bool {
 }
 
 func (sfc *SingleFormConfig) Save() bool {
-	return (&redisDB{}).save("SingleFormConfig", fmt.Sprintf("%d", sfc.ID), sfc)
+	return getDBStore().save("SingleFormConfig", fmt.Sprintf("%d", sfc.ID), sfc)
 }
 
 func (sfc *SingleFormConfig) Autoincr() int64 {
-	return (&redisDB{}).autoincr("SingleFormConfig")
+	return getDBStore().autoincr("SingleFormConfig")
 }
 
 // Index saves the email/domain mapping
@@ -67,13 +73,13 @@ func (sfc *SingleFormConfig) Index() {
 
 	key := strings.Join([]string{"SFCIndex", "domemail", email, domain}, ":")
 	id := fmt.Sprintf("%d", sfc.ID)
-	(&redisDB{}).setKeyValue(key, id)
+	getDBStore().setbykey(key, id)
 }
 
 // FindIndex locates and loads the config
 func (sfc *SingleFormConfig) FindIndex(email, domain string) {
 	key := strings.Join([]string{"SFCIndex", "domemail", email, domain}, ":")
-	t := (&redisDB{}).getKeyValue(key)
+	t := getDBStore().getbykey(key)
 	i, err := strconv.Atoi(t)
 	if err != nil || i == 0 {
 		return

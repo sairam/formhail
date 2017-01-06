@@ -48,7 +48,7 @@ func formSubmissionParser(w http.ResponseWriter, r *http.Request) (err error) {
 		return ErrParsingForm
 	}
 
-	form := new(model.FormRequest)
+	form := new(FormRequest)
 	decoder := schema.NewDecoder()
 	decoder.Decode(form, r.PostForm)
 
@@ -188,7 +188,7 @@ func removeRestrictedFields(r url.Values) url.Values {
 }
 
 // ParseFormFields parses the input data and fills in the struct
-func parseFormFields(referrer, requestURI string, form *model.FormRequest) (*model.IncomingRequest, error) {
+func parseFormFields(referrer, requestURI string, form *FormRequest) (*model.IncomingRequest, error) {
 	var not = &model.IncomingRequest{}
 
 	var err error

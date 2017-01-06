@@ -81,5 +81,5 @@ func (Session) LogMeIn(w http.ResponseWriter, r *http.Request) {
 func (Session) Logout(w http.ResponseWriter, r *http.Request) {
 	hc := &kinli.HttpContext{W: w, R: r}
 	hc.ClearSession()
-	hc.RedirectUnlessAuthed("")
+	hc.RedirectUnlessAuthed("Please Login")
 }

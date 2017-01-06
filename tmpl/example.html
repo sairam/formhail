@@ -1,25 +1,72 @@
 {{ partial "header" . }}
 
-<form action="http://localhost:3000/user1@example.com" method="POST">
+<br>
+<p><i>This is an example form to demo the functionality of FormServer <br>  </i></p>
+<br>
+<h3>Contact Request</h3>
+<form action="http://localhost:3000/user1@example.com" method="post" class="form-horizontal text-left" >
   <input type="hidden" name="_cc" value="test1@example.com,test2@example.com," />
-  <input type="hidden" name="email" value="customer@example.com" />
-  <input type="text" name="yo" value="Yo yo ma!" />
 
-  <select name="selectbox" multiple>
-    <option value="selected1" selected="selected">1</option>
-    <option value="selected2" selected="selected">2</option>
-    <option value="selected3" selected="selected">3</option>
-    <option value="selected5">0</option>
-  </select>
-  <textarea name="message">"Yo yo ma!"</textarea>
+  <div class="form-group">
+    <label for="repo" class="col-sm-4 control-label">Name</label>
+    <div class="col-sm-8">
+      <input type="text" class="form-control" name="name" placeholder="Enter your Name" value="The Rock">
+      <p class="help-block">Enter your name if you wish<br>
+      </p>
+    </div>
+  </div>
 
-  <input type="checkbox" value="go" checked="true" name="codelist[]" />
-  <input type="checkbox" value="java" checked="true" name="codelist[]" />
-  <input type="checkbox" value="ruby" checked="true" name="codelist[]" />
-  <input type="checkbox" value="javascript"  name="codelist[]" />
+  <div class="form-group">
+    <label for="repo" class="col-sm-4 control-label">Email</label>
+    <div class="col-sm-8">
+      <input type="email" class="form-control" name="email" placeholder="Enter your Email" value="awesome@example.com">
+      <p class="help-block">Your Email Address to reach you<br>
+      </p>
+    </div>
+  </div>
 
-  <input type="checkbox" checked="true" name="AgreeToTerms" />
-  <input type="submit" class="btn btn-lg btn-success" />
+  <div class="form-group">
+    <div class="col-sm-4 control-label">
+      <label for="tzName">Select the people you know</label>
+    </div>
+    <div class="col-sm-8">
+      <select name="selectbox" class="form-control" multiple="multiple">
+        <option value="selected1" selected="selected">Adam</option>
+        <option value="selected2" selected="selected">Alice</option>
+        <option value="selected3" selected="selected">Steve</option>
+        <option value="selected5">Albert</option>
+      </select>
+      <p class="help-block">Use (Cmd) or (Ctrl) keys to select multiple</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-sm-4 control-label">Programming Languages</label>
+    <div class="col-sm-8">
+      <div class="checkbox"> <label> <input type="checkbox" value="go"   checked="true" name="codelist[]" /> Go     </label> </div>
+      <div class="checkbox"> <label> <input type="checkbox" value="java" checked="true" name="codelist[]" /> Java   </label> </div>
+      <div class="checkbox"> <label> <input type="checkbox" value="ruby" checked="true" name="codelist[]" /> Ruby   </label> </div>
+      <div class="checkbox"> <label> <input type="checkbox" value="delphi"              name="codelist[]" /> Delphi </label> </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-4 col-sm-8">
+      <div class="checkbox">
+        <label>
+          <input type="hidden" name="AgreeToTerms" value="false" />
+          <input type="checkbox" name="AgreeToTerms" value="true" checked="checked" /><strong>Let us Agree to Disagree</strong>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-4 col-sm-8">
+      <button type="submit" class="btn btn-primary">Take me to your leader</button>
+    </div>
+  </div>
+
 </form>
 
 {{ partial "footer" . }}

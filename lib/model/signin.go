@@ -24,17 +24,20 @@ type UserSignInRequest struct {
 	SEndTime    int64  // Session End Time request epoch
 }
 
+// Load ..
 func (usir *UserSignInRequest) Load(id int) bool {
-	success := (&redisDB{}).load("UserSignInRequest", fmt.Sprintf("%d", id), usir)
+	success := getDBStore().load("UserSignInRequest", fmt.Sprintf("%d", id), usir)
 	return success
 }
 
+// Save ..
 func (usir *UserSignInRequest) Save() bool {
-	return (&redisDB{}).save("UserSignInRequest", fmt.Sprintf("%d", usir.ID), usir)
+	return getDBStore().save("UserSignInRequest", fmt.Sprintf("%d", usir.ID), usir)
 }
 
+// Autoincr ..
 func (usir *UserSignInRequest) Autoincr() int64 {
-	return (&redisDB{}).autoincr("UserSignInRequest")
+	return getDBStore().autoincr("UserSignInRequest")
 }
 
 // Index indexes data
@@ -43,14 +46,14 @@ func (usir *UserSignInRequest) Index() {
 
 	key := strings.Join([]string{"USIRIndex", "token", token}, ":")
 	id := fmt.Sprintf("%d", usir.ID)
-	(&redisDB{}).setKeyValue(key, id)
+	getDBStore().setbykey(key, id)
 	// TODO: set expiry based on the request data based usir.ValidTime
 }
 
 // FindIndex finds based on the indexed data
 func (usir *UserSignInRequest) FindIndex(token string) {
 	key := strings.Join([]string{"USIRIndex", "token", token}, ":")
-	t := (&redisDB{}).getKeyValue(key)
+	t := getDBStore().getbykey(key)
 	i, err := strconv.Atoi(t)
 	if err != nil || i == 0 {
 		return
