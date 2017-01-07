@@ -77,8 +77,9 @@ func formSubmissionLogic(not *model.IncomingRequest) error {
 		if err != nil {
 			message = "error. smth"
 		}
-		message = "First time user, check email"
 		sendConfirmToken(sfc.Email.Address, sfc.URL)
+		message = "First time user, check email"
+		pr.SingleFormConfig = sfc
 		pr.SingleFormConfig.Confirmed = model.FormConfigUnconfirmed
 		pr.Save()
 	} else if pr.YetToBeConfirmed() {

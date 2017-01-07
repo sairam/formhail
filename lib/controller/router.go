@@ -40,6 +40,8 @@ func InitRouter() {
 
 	r.HandleFunc("/{uid}", service.FormSubmissionRequest).Methods("POST")
 
+	r.NotFoundHandler = http.HandlerFunc(notFound)
+
 	initStatic(r)
 
 	srv := &http.Server{
@@ -48,6 +50,17 @@ func InitRouter() {
 		WriteTimeout: 60 * time.Second,
 		ReadTimeout:  60 * time.Second,
 	}
+	log.Println("Starting server on", common.Config.LocalServer)
 	log.Fatal(srv.ListenAndServe())
 
+}
+func notFound(w http.ResponseWriter, r *http.Request) {
+	title := "Page Not Found"
+	text := "The Page you have been looking is not found"
+	hc := &kinli.HttpContext{W: w, R: r}
+	hc.W.Header().Set("Content-Type", "text/html")
+	hc.W.WriteHeader(http.StatusNotFound)
+	// render the text in the page
+	page := kinli.NewPage(hc, title, "", struct{ Text string }{text}, make(map[string]string))
+	kinli.DisplayPage(hc.W, "_text", page)
 }

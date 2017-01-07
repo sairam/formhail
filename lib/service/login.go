@@ -2,9 +2,11 @@ package service
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"net/mail"
 	"net/url"
+	"strings"
 	"time"
 
 	"../helper"
@@ -48,6 +50,8 @@ func verifyUserConfirmToken(token string) (user *UserSession, err error) {
 		Email:  sir.Email,
 		Domain: sir.Domain,
 	}
+	log.Println("user confirmed")
+	log.Printf("%+v\n", user)
 	return user, nil
 }
 
@@ -61,6 +65,8 @@ func verifyLoginToken(token string) (user *UserSession, err error) {
 		Email:  sir.Email,
 		Domain: sir.Domain,
 	}
+	log.Println("user logged in")
+	log.Printf("%+v\n", user)
 	return user, nil
 }
 
@@ -85,8 +91,27 @@ func requestToAuthenticate(r *http.Request) (err error) {
 		return
 	}
 
-	parsed, err := url.Parse(r.Form["domain"][0])
+	if len(r.Form["domain"]) == 0 {
+		err = errors.New("Domain not found in request")
+		return
+
+	}
+	gotDomain := r.Form["domain"][0]
+	if !strings.HasPrefix(gotDomain, "http") {
+		gotDomain = "http://" + gotDomain
+	}
+	parsed, err := url.Parse(gotDomain)
+	if err != nil {
+		return
+	}
+	// TODO - check if we want to ignore the port as part of the domain since Host contains port as well
+	if parsed.Host == "" {
+		err = errors.New("Parsed host is blank")
+		return
+	}
 	domain := parsed.Host
+
+	// TODO: check if the domain/user exists, else create one and send a confirm link instead of a login link
 
 	userSignInRequest, err := newUserSignInRequest(email.Address, domain, model.SirequestTypeLogin)
 	userSignInRequest.Save()
